@@ -1,4 +1,4 @@
-﻿import asyncio, codecs, copy, json, time, os
+﻿import asyncio, codecs, copy, json, time
 from .storage import require, Fault, uid
 
 def validate_chat(b):
@@ -65,21 +65,13 @@ def prepare(chat,region):
             (system if role=='system' else developer).append(text)
         else:conversation.append(message)
     if system or developer:
-        instructions=chr(10).join(system)
-        if developer:
-            if instructions:instructions+=chr(10)*2+'Additional developer instructions (subject to the system instructions above):'+chr(10)
-            instructions+=chr(10).join(developer)
+        instructions=chr(10).join(system+developer)
         b['messages']=[{'role':'system','content':instructions}]+conversation
     else:b['messages']=conversation
     if isinstance(b.get('tool_choice'),dict):
         name=b['tool_choice'].get('function',{}).get('name'); tools=[t for t in b.get('tools',[]) if t['function']['name']==name]
         require(len(tools)==1,'Named tool is not present'); b['tools']=tools; b['tool_choice']='required'
-    if region=='intl' and b['messages'][0]['role']!='system': b['messages'].insert(0,{'role':'system','content':os.environ.get('WB_DEFAULT_SYSTEM_PROMPT','You are a helpful assistant. Follow the user instructions and use only the tools explicitly provided.')})
-    fmt=b.get('response_format',{})
-    if fmt.get('type') in ('json_object','json_schema'):
-        text='Return only valid JSON, without markdown fences or commentary.'
-        if fmt['type']=='json_schema': text+=' Follow this JSON schema: '+json.dumps(fmt['json_schema']['schema'],ensure_ascii=False)
-        b['messages'].insert(0,{'role':'system','content':text})
+    # Forward native response_format and caller instructions without adding prompts.
     b['stream']=True; b['stream_options']={'include_usage':True}; return b
 def contract(value,request):
     declared={t['function']['name']:t['function'] for t in request.get('tools',[]) if t.get('type')=='function'}

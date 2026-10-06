@@ -37,7 +37,7 @@ def responses_request(b):
             else:raise Fault(400,'Unsupported input content: '+str(typ))
         return out
     messages=[]
-    if b.get('instructions'):messages.append({'role':'system','content':b['instructions']})
+    if b.get('instructions') is not None:messages.append({'role':'system','content':b['instructions']})
     inp=[{'role':'user','content':b['input']}] if isinstance(b.get('input'),str) else b.get('input');require(isinstance(inp,list),'input required')
     for item in inp:
         typ=item.get('type')

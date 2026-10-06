@@ -27,7 +27,7 @@ def anthropic_to_chat(b):
                 require(bool(url),'Image source required');result.append({'type':'image_url','image_url':{'url':url}})
             else:raise Fault(400,'Unsupported content block: '+str(typ),'unsupported_content')
         return result
-    if b.get('system'):
+    if b.get('system') is not None:
         system=parts(b['system']);require(all(p['type']=='text' for p in system),'system must be text');messages.append({'role':'system','content':chr(10).join(p['text'] for p in system)})
     for m in b['messages']:
         role=m.get('role');require(role in ('user','assistant','system'),'Invalid message role')

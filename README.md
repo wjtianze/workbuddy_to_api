@@ -40,6 +40,15 @@ headless 模式的管理密钥可通过 `WB_ADMIN_KEY` 环境变量指定，未�
 
 通过 `GET /v1/models` 获取实际模型，保留 `cn/` 或 `gl/` 前缀。思考强度、输出上限和工具由客户端设置，并遵循模型实际能力。支持 Chat Completions、无状态 Responses、Messages 和 SSE。
 
+## 系统提示词
+
+网关不自动添加默认系统提示词、身份设定或 JSON 输出提示。国内与国际账号都仅使用客户端提供的指令；`WB_DEFAULT_SYSTEM_PROMPT` 不再注入请求。
+
+- Chat Completions 的 `system` / `developer`、Responses 的 `instructions` 和 Messages 的 `system` 会保留，显式空字符串也会保留。
+- 上游不支持 `developer` 角色，因此将其内容接在客户端的 `system` 内容之后，合并为一条 `system` 消息，只用换行分隔，不追加说明文字。
+- JSON / JSON Schema 要求通过原生 `response_format` 转发，返回结果仍经过现有 JSON 校验；不通过额外系统消息模拟格式要求。
+- 工具定义、工具选择和思考参数沿用现有协议转换。此行为仅保证网关发出的请求不包含额外系统提示词，不能证明官方服务端没有自己的提示词。
+
 ## 注意
 
 - 默认仅监听本机；远程部署需自行配置 HTTPS 与访问控制。
