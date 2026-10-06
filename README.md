@@ -2,6 +2,8 @@
 
 Python 多账号模型网关，支持国内 / 国际账号、WebUI、余额与签到、模型倍率、调用记录和分区 API Key。不依赖原版桌面客户端或 Node.js 后端。
 
+本 fork 基于 [yxxawa/workbuddy_to_api](https://github.com/yxxawa/workbuddy_to_api) 的新版网关，移除网关额外注入的系统提示词，保留客户端指令与新版功能。具体行为见下方“系统提示词”说明。
+
 非官方项目，仅用于你有权使用的账号与接口。   
 
 <img width="2538" height="1400" alt="02feabeb-ff93-44d6-8376-3c346d1cc2c9" src="https://github.com/user-attachments/assets/52ecf49a-479d-4a4d-a514-0d025919098a" />
@@ -48,6 +50,16 @@ headless 模式的管理密钥可通过 `WB_ADMIN_KEY` 环境变量指定，未�
 - 上游不支持 `developer` 角色，因此将其内容接在客户端的 `system` 内容之后，合并为一条 `system` 消息，只用换行分隔，不追加说明文字。
 - JSON / JSON Schema 要求通过原生 `response_format` 转发，返回结果仍经过现有 JSON 校验；不通过额外系统消息模拟格式要求。
 - 工具定义、工具选择和思考参数沿用现有协议转换。此行为仅保证网关发出的请求不包含额外系统提示词，不能证明官方服务端没有自己的提示词。
+
+## 回归验证
+
+安装运行依赖后执行：
+
+```powershell
+python -W error::ResourceWarning -m unittest discover -s tests -v
+```
+
+测试使用本机模拟上游和临时数据目录，覆盖国内 / 国际账号下三种 API 的流式与非流式转发，不访问真实账号。已在 Windows / Python 3.14 验证；尚未进行官方接口的真实账号验收。
 
 ## 注意
 
